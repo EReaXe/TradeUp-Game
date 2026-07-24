@@ -87,6 +87,14 @@ create table if not exists public.player_cards (
   constraint player_cards_limited_serial unique (card_id,serial_number)
 );
 
+create table if not exists public.player_card_discoveries (
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  card_id uuid not null references public.cards(id) on delete cascade,
+  first_discovered_at timestamptz not null default now(),
+  last_acquired_at timestamptz not null default now(),
+  primary key(owner_id,card_id)
+);
+
 create table if not exists public.system_card_pool (
   id uuid primary key default gen_random_uuid(),
   original_player_card_id uuid not null,

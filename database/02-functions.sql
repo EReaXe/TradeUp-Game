@@ -74,6 +74,21 @@ create trigger market_trade_reservation_guard before insert or update of player_
 drop trigger if exists player_card_trade_reservation_guard on public.player_cards;
 create trigger player_card_trade_reservation_guard before delete on public.player_cards for each row execute function public.guard_trade_reserved_card();
 
+create or replace function public.record_player_card_discovery()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ insert into public.player_card_discoveries(owner_id,card_id,first_discovered_at,last_acquired_at)
+ values(new.owner_id,new.card_id,coalesce(new.obtained_at,now()),coalesce(new.obtained_at,now()))
+ on conflict(owner_id,card_id) do update
+ set last_acquired_at=greatest(public.player_card_discoveries.last_acquired_at,excluded.last_acquired_at);
+ return new;
+end $$;
+
+drop trigger if exists player_card_discovery_tracker on public.player_cards;
+create trigger player_card_discovery_tracker
+after insert or update of owner_id on public.player_cards
+for each row execute function public.record_player_card_discovery();
+
 create or replace function public.guard_retired_card_use()
 returns trigger language plpgsql security definer set search_path=public as $$
 declare target uuid:=new.player_card_id;

@@ -102,7 +102,9 @@ begin
  payout:=greatest(1,floor(greatest(c.score,1)*0.20));
  insert into public.system_card_pool(original_player_card_id,card_id,serial_number,variant,condition,returned_by)
  values(pc.id,pc.card_id,pc.serial_number,pc.variant,pc.condition,uid);
- delete from public.player_cards where id=pc.id;
+ update public.player_cards
+ set retired_at=now(),retired_reason='system_buyback',updated_at=now()
+ where id=pc.id;
  update public.profiles set gold=gold+payout,updated_at=now() where id=uid returning * into p;
  insert into public.gold_ledger(owner_id,amount,balance_after,reason,reference_id) values(uid,payout,p.gold,'system_buyback',pc.id);
  return jsonb_build_object('profile',to_jsonb(p),'gold_received',payout,'card_id',c.id,'recycled',true);

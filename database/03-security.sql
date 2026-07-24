@@ -54,6 +54,7 @@ alter table public.profiles enable row level security;
 alter table public.card_sets enable row level security;
 alter table public.cards enable row level security;
 alter table public.player_cards enable row level security;
+alter table public.player_card_discoveries enable row level security;
 alter table public.system_card_pool enable row level security;
 alter table public.upgrades enable row level security;
 alter table public.player_upgrades enable row level security;
@@ -86,6 +87,8 @@ drop policy if exists cards_public_read on public.cards;
 create policy cards_public_read on public.cards for select using(is_active);
 drop policy if exists inventories_public_read on public.player_cards;
 create policy inventories_public_read on public.player_cards for select using(true);
+drop policy if exists player_card_discoveries_owner_read on public.player_card_discoveries;
+create policy player_card_discoveries_owner_read on public.player_card_discoveries for select to authenticated using(auth.uid()=owner_id);
 drop policy if exists upgrades_public_read on public.upgrades;
 create policy upgrades_public_read on public.upgrades for select using(is_active);
 drop policy if exists own_upgrades_read on public.player_upgrades;
@@ -140,7 +143,7 @@ drop policy if exists admin_settings_all on public.app_settings;
 create policy admin_settings_all on public.app_settings for all to authenticated using(public.is_collectverse_admin()) with check(public.is_collectverse_admin());
 
 revoke all on all tables in schema public from anon,authenticated;
-grant select on public.profiles,public.card_sets,public.cards,public.player_cards,public.upgrades,public.player_upgrades,public.pack_types,public.badges,public.player_badges,public.patch_notes,public.app_settings,public.market_listings,public.market_bids,public.gold_ledger,public.economy_events,public.economy_daily_summaries,public.admin_audit_log,public.trade_offers,public.trade_offer_items,public.trade_reserved_cards,public.card_fusions,public.card_watchlist,public.notifications to authenticated;
+grant select on public.profiles,public.card_sets,public.cards,public.player_cards,public.player_card_discoveries,public.upgrades,public.player_upgrades,public.pack_types,public.badges,public.player_badges,public.patch_notes,public.app_settings,public.market_listings,public.market_bids,public.gold_ledger,public.economy_events,public.economy_daily_summaries,public.admin_audit_log,public.trade_offers,public.trade_offer_items,public.trade_reserved_cards,public.card_fusions,public.card_watchlist,public.notifications to authenticated;
 grant select on public.card_sets,public.cards,public.upgrades,public.pack_types,public.badges,public.patch_notes,public.app_settings to anon;
 grant insert,update,delete on public.card_sets,public.cards,public.pack_types,public.patch_notes,public.app_settings to authenticated;
 
@@ -176,6 +179,7 @@ revoke all on function public.log_profile_economy_change() from public,anon,auth
 revoke all on function public.log_admin_change() from public,anon,authenticated;
 revoke all on function public.guard_trade_reserved_card() from public,anon,authenticated;
 revoke all on function public.guard_retired_card_use() from public,anon,authenticated;
+revoke all on function public.record_player_card_discovery() from public,anon,authenticated;
 revoke all on function public.snapshot_market_listing_variant() from public,anon,authenticated;
 revoke all on function public.notify_watchlist_price() from public,anon,authenticated;
 revoke all on function public.notify_listing_sale() from public,anon,authenticated;
