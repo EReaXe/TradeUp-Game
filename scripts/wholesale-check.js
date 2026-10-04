@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {createWholesaleService,wholesaleErrors} from '../js/wholesale-service.js';
+const calls=[];const product={id:'product',wholesale_price_kurus:'85000'};
+let failure;
+const service=createWholesaleService({rpc:async(name,payload)=>{calls.push({name,payload});return {data:name==='wholesale_catalog'?[product]:{total_kurus:'170000'},error:failure};}});
+assert.deepEqual(await service.catalog(),[product]);
+const request={p_product_id:'product',p_quantity:2,p_expected_price_kurus:'85000',p_request_id:'request'};
+await service.buy(request);await service.buy(request);
+assert.deepEqual(calls[1],{name:'buy_wholesale',payload:request});assert.deepEqual(calls[1],calls[2]);
+failure={code:'W0005'};await assert.rejects(()=>service.buy(request),e=>e===failure);
+for(const code of ['W0003','W0004','W0005','W0006','W0007','W0008','PGRST202'])assert.ok(wholesaleErrors[code]);
+console.log('PASS: wholesale service exact RPC payload, stable retry ID, server-error propagation. Test doubles only.');

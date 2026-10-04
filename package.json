@@ -1,0 +1,22 @@
+{
+  "name": "tradeup",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "check": "node scripts/check.js && node scripts/auth-check.js && node scripts/database-check.js && node scripts/wholesale-check.js && node scripts/economy-check.js && node scripts/events-check.js && node scripts/events-service-check.js && node scripts/progression-check.js && node scripts/business-check.js && node scripts/trading-check.js",
+    "check:progression": "node scripts/progression-check.js",
+    "check:business": "node scripts/business-check.js",
+    "check:db": "node scripts/database-check.js",
+    "check:race": "node scripts/marketplace-race-check.js",
+    "check:economy": "node scripts/economy-check.js",
+    "check:events": "node scripts/events-check.js && node scripts/events-service-check.js",
+    "check:trading": "node scripts/trading-check.js"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "embedded-postgres": "18.4.0-beta.17",
+    "pg": "^8.23.1"
+  }
+}
